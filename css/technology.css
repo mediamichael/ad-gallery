@@ -1,0 +1,36 @@
+#main {
+    background: url('http://bjork.medialocal.com/wp-content/uploads/2013/05/nytimes-arts-and-ent.jpg');
+    background-repeat:no-repeat;
+    background-position:center 17px;
+	background-color: #f6f6f6;
+}
+.one60 {
+	display: none;
+}
+.three36 {
+    display: block;
+	position:absolute;
+	top:827px;
+	left:1033px;
+}
+.three100 {
+	display: none;
+}
+.seven28 {
+	display: block;
+	position:absolute;
+	top:480px;
+	left:520px;
+}
+.three20 {
+	display: none;
+}
+.landing-page{
+    display: none;
+}
+.ad-set {
+	height:800px;
+}
+form.heart {
+    display: none;
+}

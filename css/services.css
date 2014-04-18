@@ -1,0 +1,35 @@
+#content.full-width.portfolio-full {
+    width: 1000px !important;
+    height:700px !important;
+}
+#main {
+    background: url('http://www.vantagelocal.com/wp-content/uploads/2013/03/nytimes.com-us.jpg');
+    background-repeat:no-repeat;
+    background-position:center 17px;
+	background-color: #f6f6f6;
+}
+.one60 {
+	display: none;
+}
+.three36 {
+	display: block;
+	top:415px;
+	left:610px;
+}
+.three100 {
+	display: none;
+}
+.seven28 {
+	display: block;
+	top:133px;
+	left:100px;
+}
+.three20 {
+	display: none;
+}
+.ad-set {
+	height:700px;
+}
+form.heart {
+    display: none;
+}

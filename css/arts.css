@@ -1,0 +1,35 @@
+#content.full-width.portfolio-full {
+    width: 1000px !important;
+    height: 750px !important;
+}
+#main {
+    background: url('http://www.vantagelocal.com/wp-content/uploads/2013/03/nytimes-arts-and-ent.jpg');
+    background-repeat:no-repeat;
+    background-position:center 17px;
+	background-color: #f6f6f6;
+}
+.one60 {
+	display: none;
+}
+.three36 {
+	display: block;
+	top:477px;
+	left:609px;
+}
+.three100 {
+	display: none;
+}
+.seven28 {
+	display: block;
+	top:135px;
+	left:120px;
+}
+.three20 {
+	display: none;
+}
+.ad-set {
+	height:765px;
+}
+form.heart {
+    display: none;
+}

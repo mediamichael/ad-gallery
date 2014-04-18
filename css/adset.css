@@ -1,0 +1,51 @@
+.header-banner {
+	width: 100%;
+	padding-left: 10%;
+	background: #f6f6f6;
+}
+.tab-content {
+	height: 1400px;
+}
+.ad {
+	padding: 10px;
+}
+.skyscraper {
+	min-width: 160px;
+	min-height: 600px;
+}
+.large_rectangle {
+	min-width: 336px;
+	min-height: 280px;
+}
+.medium_rectangle {
+	min-width: 300px;
+	min-height: 250px;
+}
+.leaderboard {
+	min-width: 728px;
+	min-height: 90px;
+}
+.mobile {
+	height: 50px;
+	width: 320px;
+	position: relative;
+	top: 200px;
+	left: 44px;
+}
+.phone {
+	height: 928px;
+	width: 412px;
+	background: url("//7629e0040b7aa73eaefb-2105a7941d639194e8ba5253efec10c9.r9.cf1.rackcdn.com/wp/20130530_iphone.png");
+}
+#standard_ads {
+	height: 650px;
+}
+#mobile_ads {
+	height: 930px;
+}
+.nav-tabs .tab_colored a {
+	border-bottom-color: #ddd;
+}
+.nav-tabs .active a {
+	border-bottom-color: transparent;
+}
