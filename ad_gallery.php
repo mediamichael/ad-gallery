@@ -1,13 +1,13 @@
 <?php
 /*
-Plugin Name: Vantage Local Creative
-Plugin URI: http://www.vantagelocal.com
-Description: A network gallery plugin for Vantage Local's creative ad gallery.
-Version: 0.3.4
+Plugin Name: Ad Gallery
+Plugin URI: http://www.medialocal.com
+Description: A network gallery plugin for creative ad galleries.
+Version: 0.4.0
 Author: Michael McConnell and Wang Fu (shortcode by Bill Erickson, http://www.billerickson.net, https://github.com/billerickson/display-posts-shortcode/wiki)
-Author URI: http://www.vantagelocal.com
-Author Email: michael.mcconnell@vantagelocal.com
-License:Copyright 2013 Vantage Local Inc (info@vantagelocal.com)
+Author URI: http://www.medialocal.com
+Author Email: contact@medialocal.com
+License: Copyright 2013-2014 Michael McConnell
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
-class vantagelocal_creative {
+class ad_gallery {
 
 	/*--------------------------------------------*
 	 * Constructor
@@ -75,11 +75,11 @@ class vantagelocal_creative {
 	    // Add filter for to catch search query
 	    //add_filter( 'pre_get_posts', array( $this, 'query_post_type' ) );
 	    //Register the Custom Post Type and Taxonomies
-		add_action('init', array( $this, 'vantagelocal_creative_register' ) );
+		add_action('init', array( $this, 'ad_gallery_register' ) );
 		//Add the Admin Custom Fields
-		add_action('add_meta_boxes', array( $this, 'vantagelocal_creative_meta_boxes' ) );
+		add_action('add_meta_boxes', array( $this, 'ad_gallery_meta_boxes' ) );
 		//Save the post meta
-		add_action('save_post', array( $this, 'vantagelocal_creative_save_meta' ) );
+		add_action('save_post', array( $this, 'ad_gallery_save_meta' ) );
 
 	} // end constructor
 
@@ -89,14 +89,14 @@ class vantagelocal_creative {
 	 * @param	boolean	$network_wide	True if WPMU superadmin uses "Network Activate" action, false if WPMU is disabled or plugin is activated on an individual blog
 	 */
 	public function activate_creative( $network_wide ) {
-		vantagelocal_creative::add_template('gallery-page-template.php');
+		ad_gallery::add_template('gallery-page-template.php');
 		/*
-		vantagelocal_creative::add_template('taxonomy-creative-categories.php');
-		vantagelocal_creative::add_template('taxonomy-creative-features.php');
-		vantagelocal_creative::add_template('taxonomy-creative-management.php');
-		vantagelocal_creative::add_template('archive-creative.php');
-		vantagelocal_creative::add_template('single-creative.php');
-		vantagelocal_creative::add_template('search.php');		
+		ad_gallery::add_template('taxonomy-creative-categories.php');
+		ad_gallery::add_template('taxonomy-creative-features.php');
+		ad_gallery::add_template('taxonomy-creative-management.php');
+		ad_gallery::add_template('archive-creative.php');
+		ad_gallery::add_template('single-creative.php');
+		ad_gallery::add_template('search.php');		
 		*/
 	} // end activate
 
@@ -106,14 +106,14 @@ class vantagelocal_creative {
 	 * @param	boolean	$network_wide	True if WPMU superadmin uses "Network Activate" action, false if WPMU is disabled or plugin is activated on an individual blog
 	 */
 	public function deactivate( $network_wide ) {
-		vantagelocal_creative::delete_template('gallery-page-template.php');
+		ad_gallery::delete_template('gallery-page-template.php');
 		/*
-		vantagelocal_creative::delete_template('taxonomy-creative-categories.php');
-		vantagelocal_creative::delete_template('taxonomy-creative-features.php');
-		vantagelocal_creative::delete_template('taxonomy-creative-management.php');
-		vantagelocal_creative::delete_template('archive-creative.php');
-		vantagelocal_creative::delete_template('single-creative.php');
-		vantagelocal_creative::delete_template('search.php');
+		ad_gallery::delete_template('taxonomy-creative-categories.php');
+		ad_gallery::delete_template('taxonomy-creative-features.php');
+		ad_gallery::delete_template('taxonomy-creative-management.php');
+		ad_gallery::delete_template('archive-creative.php');
+		ad_gallery::delete_template('single-creative.php');
+		ad_gallery::delete_template('search.php');
 		*/
 		
 	} // end deactivate
@@ -131,7 +131,7 @@ class vantagelocal_creative {
 	 * Loads the plugin text domain for translation
 	 */
 	public function plugin_textdomain() {
-		$domain = 'vantagelocal-creative';
+		$domain = 'ad-gallery';
 		$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
         load_textdomain( $domain, WP_LANG_DIR.'/'.$domain.'/'.$domain.'-'.$locale.'.mo' );
         load_plugin_textdomain( $domain, FALSE, dirname( plugin_basename( __FILE__ ) ) . '/lang/' );
@@ -144,7 +144,7 @@ class vantagelocal_creative {
 	public function register_admin_styles() {
 
 		// TODO:	Change 'plugin-name' to the name of your plugin
-		wp_enqueue_style( 'vantagelocal-creative-admin-css', plugins_url( 'vantage-local-creative/css/admin.css' ) );
+		wp_enqueue_style( 'ad-gallery-admin-css', plugins_url( 'ad-gallery/css/admin.css' ) );
 
 	} // end register_admin_styles
 
@@ -154,7 +154,7 @@ class vantagelocal_creative {
 	public function register_admin_scripts() {
 
 		// TODO:	Change 'plugin-name' to the name of your plugin
-		wp_enqueue_script( 'vantagelocal-creative-admin-admin-js', plugins_url( 'vantage-local-creative/js/admin.js' ), array('jquery') );
+		wp_enqueue_script( 'ad-gallery-admin-admin-js', plugins_url( 'ad-gallery/js/admin.js' ), array('jquery') );
 
 	} // end register_admin_scripts
 
@@ -163,21 +163,21 @@ class vantagelocal_creative {
 	 */
 	public function register_plugin_styles() {
 
-		wp_register_style( 'bootstrap', plugins_url( 'vantage-local-creative/css/bootstrap.css' ), array() );
-		wp_register_style( 'bootstrap-responsive', plugins_url( 'vantage-local-creative/css/bootstrap-responsive.css' ), array('bootstrap') );
+		wp_register_style( 'bootstrap', plugins_url( 'ad-gallery/css/bootstrap.css' ), array() );
+		wp_register_style( 'bootstrap-responsive', plugins_url( 'ad-gallery/css/bootstrap-responsive.css' ), array('bootstrap') );
 		
-		wp_register_style( 'vantagelocal-creative-plugin-display', plugins_url( 'vantage-local-creative/css/display.css' ), array(), 1.0, 'screen' );
-		wp_register_style( 'vantagelocal-creative-plugin-adset', plugins_url( 'vantage-local-creative/css/adset.css' ), array(), 1.0, 'screen' );
-		wp_register_style( 'vantagelocal-creative-plugin-style', plugins_url( 'vantage-local-creative/css/style.css' ), array(), 1.0, 'screen' );
-		wp_register_style( 'vantagelocal-creative-plugin-media', plugins_url( 'vantage-local-creative/css/media.css' ), array(), 1.0, 'media' );
+		wp_register_style( 'ad-gallery-plugin-display', plugins_url( 'ad-gallery/css/display.css' ), array(), 1.0, 'screen' );
+		wp_register_style( 'ad-gallery-plugin-adset', plugins_url( 'ad-gallery/css/adset.css' ), array(), 1.0, 'screen' );
+		wp_register_style( 'ad-gallery-plugin-style', plugins_url( 'ad-gallery/css/style.css' ), array(), 1.0, 'screen' );
+		wp_register_style( 'ad-gallery-plugin-media', plugins_url( 'ad-gallery/css/media.css' ), array(), 1.0, 'media' );
 		
 		wp_enqueue_style( 'bootstrap' );
 		wp_enqueue_style( 'bootstrap-responsive' );
 		
-		wp_enqueue_style( 'vantagelocal-creative-plugin-display' );
-		wp_enqueue_style( 'vantagelocal-creative-plugin-adset' );
-		wp_enqueue_style( 'vantagelocal-creative-plugin-style' );
-		wp_enqueue_style( 'vantagelocal-creative-plugin-media' );
+		wp_enqueue_style( 'ad-gallery-plugin-display' );
+		wp_enqueue_style( 'ad-gallery-plugin-adset' );
+		wp_enqueue_style( 'ad-gallery-plugin-style' );
+		wp_enqueue_style( 'ad-gallery-plugin-media' );
 		
 	} // end register_plugin_styles
 
@@ -186,8 +186,8 @@ class vantagelocal_creative {
 	 */
 	public function register_plugin_scripts() {
 
-		wp_enqueue_script( 'bootstrap', plugins_url( 'vantage-local-creative/js/bootstrap.js' ), array('jquery') );
-		wp_enqueue_script( 'vantagelocal-creative-plugin-display-js', plugins_url( 'vantage-local-creative/js/display.js' ), array('jquery') );
+		wp_enqueue_script( 'bootstrap', plugins_url( 'ad-gallery/js/bootstrap.js' ), array('jquery') );
+		wp_enqueue_script( 'ad-gallery-plugin-display-js', plugins_url( 'ad-gallery/js/display.js' ), array('jquery') );
 
 	} // end register_plugin_scripts
 
@@ -208,7 +208,7 @@ class vantagelocal_creative {
  	 * Register a custom post type "creative"
 	 * Regitster taxonomies
 	 */
-	function vantagelocal_creative_register() {
+	function ad_gallery_register() {
 		$labels = array(
 			'name' => _x( 'Creative', 'creative' ),
 			'singular_name' => _x( 'Creative', 'creative' ),
@@ -259,40 +259,40 @@ class vantagelocal_creative {
 	/**
  	 * This function adds the custom fields to the admin, registering the meta boxes
 	 */
-	function vantagelocal_creative_meta_boxes(){
-		add_meta_box("vantagelocal-creative-info-meta", "Creative Details", array($this,'vantagelocal_creative_meta_options'), "creative", "normal", "high");
+	function ad_gallery_meta_boxes(){
+		add_meta_box("ad-gallery-info-meta", "Creative Details", array($this,'ad_gallery_meta_options'), "creative", "normal", "high");
 	}
 	/**
  	 * This function sets the options for the meta boxes
 	 */
-	function vantagelocal_creative_meta_options(){
+	function ad_gallery_meta_options(){
 		global $post;
 		if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) return $post_id;
 		$all_creative_meta = get_post_custom($post->ID);
-		$version_number = $all_creative_meta["vantagelocal-creative-version-number"][0];
-		$gallery_thumbnail_url = $all_creative_meta["vantagelocal-creative-gallery-thumbnail-url"][0];
-		$tag_300 = $all_creative_meta["vantagelocal-creative-tag-300"][0];
-		$tag_728 = $all_creative_meta["vantagelocal-creative-tag-728"][0];
-		$tag_160 = $all_creative_meta["vantagelocal-creative-tag-160"][0];
-		$tag_336 = $all_creative_meta["vantagelocal-creative-tag-336"][0];
-		$tag_320 = $all_creative_meta["vantagelocal-creative-tag-320"][0];
-		$lp_url_confirmation = $all_creative_meta["vantagelocal-creative-landing-page-url-confirmation"][0];
-		$retargeting_script = $all_creative_meta["vantagelocal-creative-retargeting-script"][0];
-		$other_script = $all_creative_meta["vantagelocal-creative-other-script"][0];
-		$white_label_image_url = $all_creative_meta["vantagelocal-creative-white-label-image-url"][0];
+		$version_number = $all_creative_meta["ad-gallery-version-number"][0];
+		$gallery_thumbnail_url = $all_creative_meta["ad-gallery-gallery-thumbnail-url"][0];
+		$tag_300 = $all_creative_meta["ad-gallery-tag-300"][0];
+		$tag_728 = $all_creative_meta["ad-gallery-tag-728"][0];
+		$tag_160 = $all_creative_meta["ad-gallery-tag-160"][0];
+		$tag_336 = $all_creative_meta["ad-gallery-tag-336"][0];
+		$tag_320 = $all_creative_meta["ad-gallery-tag-320"][0];
+		$lp_url_confirmation = $all_creative_meta["ad-gallery-landing-page-url-confirmation"][0];
+		$retargeting_script = $all_creative_meta["ad-gallery-retargeting-script"][0];
+		$other_script = $all_creative_meta["ad-gallery-other-script"][0];
+		$white_label_image_url = $all_creative_meta["ad-gallery-white-label-image-url"][0];
 
-		$html =	'<div class="vantagelocal-creative-meta-box">';
-		$html .= '<p><label id="version-number">Creative Version Number<br /></label><input id="version-number-field" type="number" name="vantagelocal-creative-version-number" style="height: 40px;" value='.$version_number.' /></p>';
-		$html .= '<p><label id="gallery-thumbnail-url">Gallery Thumbnail Image URL<br /></label><input id="gallery-thumbnail-url" type="url" name="vantagelocal-creative-gallery-thumbnail-url" style="height: 40px; width: 823px;" value='.$gallery_thumbnail_url.' /></p>';
-		$html .= '<p><label id="tag-160">160x600 Tag<br /></label><input id="tag-field-160" type="url" name="vantagelocal-creative-tag-160" style="height: 40px; width: 823px;" value='.$tag_160.' /></p>';		
-		$html .= '<p><label id="tag-300">300x250 Tag<br /></label><input id="tag-field-300" type="url" name="vantagelocal-creative-tag-300" style="height: 40px; width: 823px;" value='.$tag_300.' /></p>';
-		$html .= '<p><label id="tag-336">336x280 Tag<br /></label><input id="tag-field-336" type="url" name="vantagelocal-creative-tag-336" style="height: 40px; width: 823px;" value='.$tag_336.' /></p>';
-		$html .= '<p><label id="tag-728">728x90 Tag<br /></label><input id="tag-field-728" type="url" name="vantagelocal-creative-tag-728" style="height: 40px; width: 823px;" value='.$tag_728.' /></p>';
-		$html .= '<p><label id="tag-320">320x50 Tag<br /></label><input id="tag-field-320" type="url" name="vantagelocal-creative-tag-320" style="height: 40px; width: 823px;" value='.$tag_320.' /></p>';
-		$html .= '<p><label id="url-confirmation">Landing Page URL Confirmation<br /></label><input id="url-confirmation-field" type="url" name="vantagelocal-creative-landing-page-url-confirmation" style="height: 40px; width: 823px;" value='.$lp_url_confirmation.' /></p>';
-		$html .= '<p><label id="retargeting-script">Retargeting Script<br /></label><textarea id="retargeting-script-field" name="vantagelocal-creative-retargeting-script" style="height: 74px; width: 823px;">'.$retargeting_script.'</textarea></p>';
-		$html .= '<p><label id="other-script">Other Script<br /></label><textarea id="other-script-field" type="text" name="vantagelocal-creative-other-script" style="height: 74px; width: 823px;">'.$other_script.'</textarea></p>';
-		$html .= '<p><label id="img-url">White Label Image URL<br /></label><input id="white-label-image-url" type="url" name="vantagelocal-creative-white-label-image-url" style="height: 40px; width: 823px;" value='.$white_label_image_url.' /></p>';
+		$html =	'<div class="ad-gallery-meta-box">';
+		$html .= '<p><label id="version-number">Creative Version Number<br /></label><input id="version-number-field" type="number" name="ad-gallery-version-number" style="height: 40px;" value='.$version_number.' /></p>';
+		$html .= '<p><label id="gallery-thumbnail-url">Gallery Thumbnail Image URL<br /></label><input id="gallery-thumbnail-url" type="url" name="ad-gallery-gallery-thumbnail-url" style="height: 40px; width: 823px;" value='.$gallery_thumbnail_url.' /></p>';
+		$html .= '<p><label id="tag-160">160x600 Tag<br /></label><input id="tag-field-160" type="url" name="ad-gallery-tag-160" style="height: 40px; width: 823px;" value='.$tag_160.' /></p>';		
+		$html .= '<p><label id="tag-300">300x250 Tag<br /></label><input id="tag-field-300" type="url" name="ad-gallery-tag-300" style="height: 40px; width: 823px;" value='.$tag_300.' /></p>';
+		$html .= '<p><label id="tag-336">336x280 Tag<br /></label><input id="tag-field-336" type="url" name="ad-gallery-tag-336" style="height: 40px; width: 823px;" value='.$tag_336.' /></p>';
+		$html .= '<p><label id="tag-728">728x90 Tag<br /></label><input id="tag-field-728" type="url" name="ad-gallery-tag-728" style="height: 40px; width: 823px;" value='.$tag_728.' /></p>';
+		$html .= '<p><label id="tag-320">320x50 Tag<br /></label><input id="tag-field-320" type="url" name="ad-gallery-tag-320" style="height: 40px; width: 823px;" value='.$tag_320.' /></p>';
+		$html .= '<p><label id="url-confirmation">Landing Page URL Confirmation<br /></label><input id="url-confirmation-field" type="url" name="ad-gallery-landing-page-url-confirmation" style="height: 40px; width: 823px;" value='.$lp_url_confirmation.' /></p>';
+		$html .= '<p><label id="retargeting-script">Retargeting Script<br /></label><textarea id="retargeting-script-field" name="ad-gallery-retargeting-script" style="height: 74px; width: 823px;">'.$retargeting_script.'</textarea></p>';
+		$html .= '<p><label id="other-script">Other Script<br /></label><textarea id="other-script-field" type="text" name="ad-gallery-other-script" style="height: 74px; width: 823px;">'.$other_script.'</textarea></p>';
+		$html .= '<p><label id="img-url">White Label Image URL<br /></label><input id="white-label-image-url" type="url" name="ad-gallery-white-label-image-url" style="height: 40px; width: 823px;" value='.$white_label_image_url.' /></p>';
 		$html .= '</div>';
 		
 		print_r($html);
@@ -300,23 +300,23 @@ class vantagelocal_creative {
     /**
  	 * This function determines how to save the custom meta data
 	 */
-    function vantagelocal_creative_save_meta(){
+    function ad_gallery_save_meta(){
 		global $post;
     	
 		if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ){
 			return $post_id;
 		}else{
-			update_post_meta($post->ID, "vantagelocal-creative-version-number", $_POST["vantagelocal-creative-version-number"]);
-			update_post_meta($post->ID, "vantagelocal-creative-gallery-thumbnail-url", $_POST["vantagelocal-creative-gallery-thumbnail-url"]);
-			update_post_meta($post->ID, "vantagelocal-creative-tag-300", $_POST["vantagelocal-creative-tag-300"]);
-			update_post_meta($post->ID, "vantagelocal-creative-tag-728", $_POST["vantagelocal-creative-tag-728"]);
-			update_post_meta($post->ID, "vantagelocal-creative-tag-160", $_POST["vantagelocal-creative-tag-160"]);
-			update_post_meta($post->ID, "vantagelocal-creative-tag-336", $_POST["vantagelocal-creative-tag-336"]);
-			update_post_meta($post->ID, "vantagelocal-creative-tag-320", $_POST["vantagelocal-creative-tag-320"]);
-			update_post_meta($post->ID, "vantagelocal-creative-landing-page-url-confirmation", $_POST["vantagelocal-creative-landing-page-url-confirmation"]);
-			update_post_meta($post->ID, "vantagelocal-creative-retargeting-script", $_POST["vantagelocal-creative-retargeting-script"]);
-			update_post_meta($post->ID, "vantagelocal-creative-other-script", $_POST["vantagelocal-creative-other-script"]);
-			update_post_meta($post->ID, "vantagelocal-creative-white-label-image-url", $_POST["vantagelocal-creative-white-label-image-url"]);
+			update_post_meta($post->ID, "ad-gallery-version-number", $_POST["ad-gallery-version-number"]);
+			update_post_meta($post->ID, "ad-gallery-gallery-thumbnail-url", $_POST["ad-gallery-gallery-thumbnail-url"]);
+			update_post_meta($post->ID, "ad-gallery-tag-300", $_POST["ad-gallery-tag-300"]);
+			update_post_meta($post->ID, "ad-gallery-tag-728", $_POST["ad-gallery-tag-728"]);
+			update_post_meta($post->ID, "ad-gallery-tag-160", $_POST["ad-gallery-tag-160"]);
+			update_post_meta($post->ID, "ad-gallery-tag-336", $_POST["ad-gallery-tag-336"]);
+			update_post_meta($post->ID, "ad-gallery-tag-320", $_POST["ad-gallery-tag-320"]);
+			update_post_meta($post->ID, "ad-gallery-landing-page-url-confirmation", $_POST["ad-gallery-landing-page-url-confirmation"]);
+			update_post_meta($post->ID, "ad-gallery-retargeting-script", $_POST["ad-gallery-retargeting-script"]);
+			update_post_meta($post->ID, "ad-gallery-other-script", $_POST["ad-gallery-other-script"]);
+			update_post_meta($post->ID, "ad-gallery-white-label-image-url", $_POST["ad-gallery-white-label-image-url"]);
 		}
 	}
 	
@@ -357,16 +357,16 @@ class vantagelocal_creative {
 	
 	function add_page_template_filter() {
 		if ( is_singular( 'creative' ) ) {
-        	$page_template = WP_PLUGIN_DIR . '/vantage-local-creative/views/single-creative.php';
+        	$page_template = WP_PLUGIN_DIR . '/ad-gallery/views/single-creative.php';
     	}
 		else if ( is_page_template( 'gallery-page-template.php' ) ) {
-        	$page_template = WP_PLUGIN_DIR . '/vantage-local-creative/views/gallery-page-template.php';
+        	$page_template = WP_PLUGIN_DIR . '/ad-gallery/views/gallery-page-template.php';
     	}
     	else if ( is_archive( 'creative' ) ) {
-        	$page_template = WP_PLUGIN_DIR . '/vantage-local-creative/views/archive-creative.php';
+        	$page_template = WP_PLUGIN_DIR . '/ad-gallery/views/archive-creative.php';
     	}
     	else if ( is_search( 'creative' ) ) {
-        	$page_template = WP_PLUGIN_DIR . '/vantage-local-creative/views/search.php';
+        	$page_template = WP_PLUGIN_DIR . '/ad-gallery/views/search.php';
     	}
 
     	return $page_template;
@@ -393,7 +393,7 @@ class vantagelocal_creative {
 
 // TODO:	Update the instantiation call of your plugin to the name given at the class definition
 
-$plugin_name = new vantagelocal_creative();
+$plugin_name = new ad_gallery();
 
 	
 
@@ -402,9 +402,9 @@ $plugin_name = new vantagelocal_creative();
 *---------------------------------------------*/
 	 
 // Register shortcode
-add_shortcode( 'vlc', 'vantagelocal_creative_gallery' );
+add_shortcode( 'vlc', 'ad_gallery_gallery' );
 	
-function vantagelocal_creative_gallery( $atts ) {
+function ad_gallery_gallery( $atts ) {
 	
 		// Original Attributes, for filters
 		$original_atts = $atts;
@@ -584,9 +584,9 @@ function vantagelocal_creative_gallery( $atts ) {
 		$thum_image_size = get_option($temp_thum_image_type)  ;
 		$thum_image_per = $thum_image_size / get_option('large_size_w') * 0.84 * 100;
 		
-		$listing = new WP_Query( apply_filters( 'vantagelocal_creative_shortcode_args', $args, $original_atts ) );
+		$listing = new WP_Query( apply_filters( 'ad_gallery_shortcode_args', $args, $original_atts ) );
 		if ( ! $listing->have_posts() )
-			return apply_filters( 'vantagelocal_creative_shortcode_no_results', wpautop( $no_posts_message ) );
+			return apply_filters( 'ad_gallery_shortcode_no_results', wpautop( $no_posts_message ) );
 			
 		$inner = '';
 		ob_start();
@@ -614,7 +614,7 @@ function vantagelocal_creative_gallery( $atts ) {
 					}
 					else{
 						$all_creative_meta = get_post_custom($post->ID);
-						$gallery_thumbnail_url = $all_creative_meta["vantagelocal-creative-gallery-thumbnail-url"][0];
+						$gallery_thumbnail_url = $all_creative_meta["ad-gallery-gallery-thumbnail-url"][0];
 						$thumbnailsrc = '<img class="attachment-post-thumbnail wp-post-image" src="'.$gallery_thumbnail_url.'">' ;
 					}		
 				?>
