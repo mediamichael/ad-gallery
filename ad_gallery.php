@@ -24,7 +24,76 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
+/**
+ * This plugin allows you to include templates with your plugin so that they can
+ * be added with any theme.
+ *
+ * @package Ad Gallery
+ * @version 0.4.0
+ * @since 	0.4.0
+ */
+
 class ad_gallery {
+	/**
+     * Plugin version, used for cache-busting of style and script file references.
+     *
+     * @since   0.4.0
+     *
+     * @var     string
+     */
+    const VERSION = '0.4.0';
+
+    /**
+     * Unique identifier for the plugin.
+     *
+     * The variable name is used as the text domain when internationalizing strings
+     * of text.
+     *
+     * @since    0.4.0
+     *
+     * @var      string
+     */
+    protected $plugin_slug;
+
+	/**
+	 * A reference to an instance of this class.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @var   Page_Template_Plugin
+	 */
+	private static $instance;
+
+	/**
+	 * The array of templates that this plugin tracks.
+	 *
+	 * @var      array
+	 */
+	protected $templates;
+
+
+	/**
+	 * Returns an instance of this class. An implementation of the singleton design pattern.
+	 *
+	 * @return   Page_Templae_Example    A reference to an instance of this class.
+	 * @since    0.4.0
+	 */
+	public static function get_instance() {
+
+		if( null == self::$instance ) {
+			self::$instance = new ad_gallery();
+		} // end if
+
+		return self::$instance;
+
+	} // end getInstance
+
+	/**
+	 * Initializes the plugin by setting localization, filters, and administration functions.
+	 *
+	 * @version		0.4.0
+     * @since 		0.4.0
+	 */
 
 	/*--------------------------------------------*
 	 * Constructor
@@ -34,6 +103,36 @@ class ad_gallery {
 	 * Initializes the plugin by setting localization, filters, and administration functions.
 	 */
 	function __construct() {
+
+		// ---------- Register templates ------------ //
+
+		$this->templates = array();
+		$this->plugin_locale = 'pte';
+
+		// Grab the translations for the plugin
+		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
+
+		// Add a filter to the page attributes metabox to inject our template into the page template cache.
+		add_filter('page_attributes_dropdown_pages_args', array( $this, 'register_project_templates' ) );
+
+		// Add a filter to the save post in order to inject out template into the page cache
+		add_filter('wp_insert_post_data', array( $this, 'register_project_templates' ) );
+
+		// Add a filter to the template include in order to determine if the page has our template assigned and return it's path
+		add_filter('template_include', array( $this, 'view_project_template') );
+
+		// Add your templates to this array.
+		$this->templates = array(
+			'dev-slate.php' => __( 'Dev Slate', $this->plugin_slug ),
+			'full-wide.php' => __( 'Full Wide', $this->plugin_slug ),
+			'gallery-page-template.php' => __( 'Ad Gallery', $this->plugin_slug )
+		);
+
+		// adding support for theme templates to be merged and shown in dropdown
+		$templates = wp_get_theme()->get_page_templates();
+		$templates = array_merge( $templates, $this->templates );
+
+		// ---------- end templates ------------ //
 
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'plugin_textdomain' ) );
@@ -47,27 +146,11 @@ class ad_gallery {
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_plugin_scripts' ) );
 
 		// Register hooks that are fired when the plugin is activated, deactivated, and uninstalled, respectively.
-		register_activation_hook( __FILE__, array( $this, 'activate_creative' ) );
+		//register_activation_hook( __FILE__, array( $this, 'activate_creative' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );
 		register_uninstall_hook( __FILE__, array( $this, 'uninstall' ) );
-		add_action('switch_theme', array( $this, 'activate_creative' ));
-		
-		
+		//add_action('switch_theme', array( $this, 'activate_creative' ));
 
-	    /*
-	     * The first parameter of the
-	     * add_action/add_filter calls are the hooks.
-	     *
-	     * The second parameter is the function name located within this class. See the stubs
-	     * later in the file.
-	     *
-	     * For more information:
-	     * http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
-	     
-	     ex:
-	     add_action( 'TODO', array( $this, 'action_method_name' ) );
-		 add_filter( 'TODO', array( $this, 'filter_method_name' ) );
-	    */
 	    //Call custom page templates
 	    add_filter( 'archive_template', array( $this, 'add_page_template_filter' ) );
 	    add_filter( 'search_template', array( $this, 'add_page_template_filter' ) );
@@ -84,39 +167,117 @@ class ad_gallery {
 	} // end constructor
 
 	/**
-	 * Fired when the plugin is activated.
-	 *
-	 * @param	boolean	$network_wide	True if WPMU superadmin uses "Network Activate" action, false if WPMU is disabled or plugin is activated on an individual blog
-	 */
-	public function activate_creative( $network_wide ) {
-		ad_gallery::add_template('gallery-page-template.php');
-		/*
-		ad_gallery::add_template('taxonomy-creative-categories.php');
-		ad_gallery::add_template('taxonomy-creative-features.php');
-		ad_gallery::add_template('taxonomy-creative-management.php');
-		ad_gallery::add_template('archive-creative.php');
-		ad_gallery::add_template('single-creative.php');
-		ad_gallery::add_template('search.php');		
-		*/
-	} // end activate
+     * Load the plugin text domain for translation.
+     *
+     * @since    0.4.0
+     */
+    public function load_plugin_textdomain() {
+
+	    $domain = $this->plugin_slug;
+	    $locale = apply_filters( 'plugin_locale', get_locale(), $domain );
+
+	    load_textdomain( $domain, trailingslashit( WP_LANG_DIR ) . $domain . '/' . $domain . '-' . $locale . '.mo' );
+	    load_plugin_textdomain( $domain, FALSE, basename( dirname( __FILE__ ) ) . '/languages/' );
+
+    } // end load_plugin_textdomain
 
 	/**
-	 * Fired when the plugin is deactivated.
+	 * Adds our template to the pages cache in order to trick WordPress
+	 * into thinking the template file exists where it doens't really exist.
 	 *
-	 * @param	boolean	$network_wide	True if WPMU superadmin uses "Network Activate" action, false if WPMU is disabled or plugin is activated on an individual blog
+	 * @param   array    $atts    The attributes for the page attributes dropdown
+	 * @return  array    $atts    The attributes for the page attributes dropdown
+	 * @verison	0.4.0
+	 * @since	0.4.0
 	 */
-	public function deactivate( $network_wide ) {
-		ad_gallery::delete_template('gallery-page-template.php');
-		/*
-		ad_gallery::delete_template('taxonomy-creative-categories.php');
-		ad_gallery::delete_template('taxonomy-creative-features.php');
-		ad_gallery::delete_template('taxonomy-creative-management.php');
-		ad_gallery::delete_template('archive-creative.php');
-		ad_gallery::delete_template('single-creative.php');
-		ad_gallery::delete_template('search.php');
-		*/
+	public function register_project_templates( $atts ) {
+
+		// Create the key used for the themes cache
+		$cache_key = 'page_templates-' . md5( get_theme_root() . '/' . get_stylesheet() );
+
+		// Retrieve the cache list. If it doesn't exist, or it's empty prepare an array
+		$templates = wp_get_theme()->get_page_templates();
+		$templates = array_merge( $templates, $this->templates );
+		if ( empty( $templates ) ) {
+			$templates = array();
+		} // end if
+
+		// Since we've updated the cache, we need to delete the old cache
+		wp_cache_delete( $cache_key , 'themes');
+
+		// Now add our template to the list of templates by merging our templates
+		// with the existing templates array from the cache.
+		$templates = array_merge( $templates, $this->templates );
+
+		// Add the modified cache to allow WordPress to pick it up for listing
+		// available templates
+		wp_cache_add( $cache_key, $templates, 'themes', 1800 );
+
+		return $atts;
+
+	} // end register_project_templates
+
+	/**
+	 * Checks if the template is assigned to the page
+	 *
+	 * @version	0.4.0
+	 * @since	0.4.0
+	 */
+	public function view_project_template( $template ) {
+
+		global $post;
+
+		if ( ! isset( $this->templates[ get_post_meta( $post->ID, '_wp_page_template', true ) ] ) ) {
+			return $template;
+		} // end if
+
+		$file = plugin_dir_path( __FILE__ ) . 'templates/' . get_post_meta( $post->ID, '_wp_page_template', true );
+
+		// Just to be safe, we check if the file exist first
+		if( file_exists( $file ) ) {
+			return $file;
+		} // end if
+
+		return $template;
+
+	} // end view_project_template
+
+
+	/*--------------------------------------------*
+	 * deactivate the plugin
+	*---------------------------------------------*/
+	static function deactivate( $network_wide ) {
+		foreach($this as $value) {
+			ad_gallery::delete_template( $value );
+		}
 		
 	} // end deactivate
+
+	/*--------------------------------------------*
+	 * Delete Templates from Theme
+	*---------------------------------------------*/
+	public function delete_template( $filename ){				
+		$theme_path = get_template_directory();
+		$template_path = $theme_path . '/' . $filename;  
+		if( file_exists( $template_path ) ) {
+			unlink( $template_path );
+		}
+
+		// we should probably delete the old cache
+		wp_cache_delete( $cache_key , 'themes');
+	}
+
+	/**
+	 * Retrieves and returns the slug of this plugin. This function should be called on an instance
+	 * of the plugin outside of this class.
+	 *
+	 * @return  string    The plugin's slug used in the locale.
+	 * @version	0.4.0
+	 * @since	0.4.0
+	 */
+	public function get_locale() {
+		return $this->plugin_slug;
+	} // end get_locale
 
 	/**
 	 * Fired when the plugin is uninstalled.
@@ -320,29 +481,6 @@ class ad_gallery {
 		}
 	}
 	
-	/*--------------------------------------------*
-	 * Add Template into Theme
-	*---------------------------------------------*/
-	function add_template($filename){
-		$dir_name = dirname(__FILE__);					
-		$plugin_path = $dir_name."/views/".$filename;
-		$theme_path = get_template_directory();
-		$theme_path.= "/".$filename;  
-		copy($plugin_path , $theme_path);
-	}	// end add_template
-	
-	
-	/*--------------------------------------------*
-	 * Delete Templates from Theme
-	*---------------------------------------------*/
-	function delete_template($filename){				
-		$theme_path = get_template_directory();
-		$template_path = $theme_path . '/' . $filename;  
-		if( file_exists( $template_path ) ) {
-			unlink( $template_path );
-		}
-	}	
-	
 	/**
 	 * NOTE:  Filters are points of execution in which WordPress modifies data
 	 *        before saving it or sending it to the browser.
@@ -357,16 +495,16 @@ class ad_gallery {
 	
 	function add_page_template_filter() {
 		if ( is_singular( 'creative' ) ) {
-        	$page_template = WP_PLUGIN_DIR . '/ad-gallery/views/single-creative.php';
+        	$page_template = WP_PLUGIN_DIR . '/ad-gallery/templates/single-creative.php';
     	}
 		else if ( is_page_template( 'gallery-page-template.php' ) ) {
-        	$page_template = WP_PLUGIN_DIR . '/ad-gallery/views/gallery-page-template.php';
+        	$page_template = WP_PLUGIN_DIR . '/ad-gallery/templates/gallery-page-template.php';
     	}
     	else if ( is_archive( 'creative' ) ) {
-        	$page_template = WP_PLUGIN_DIR . '/ad-gallery/views/archive-creative.php';
+        	$page_template = WP_PLUGIN_DIR . '/ad-gallery/templates/archive-creative.php';
     	}
     	else if ( is_search( 'creative' ) ) {
-        	$page_template = WP_PLUGIN_DIR . '/ad-gallery/views/search.php';
+        	$page_template = WP_PLUGIN_DIR . '/ad-gallery/templates/search.php';
     	}
 
     	return $page_template;
